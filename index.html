@@ -486,6 +486,20 @@
             }
         }
 
+        function openWindow(item) {
+            if (item.type === "app") {
+                if (item.name === "Notepad") {
+                    openNotepad(item);
+                } else {
+                    openApp(item); 
+                }
+            } else if (item.type === "folder") {
+                openFolder(item);
+            } else {
+                alert('Cannot open undefined - open window function');
+            }
+        }
+
         function openApp(app) {
             if (app.url === undefined) {
             alert('Cannot open undefined URL');
@@ -512,19 +526,7 @@
             desktop.appendChild(window);
             makeDraggable(window);
         }
-        function openWindow(item) {
-            if (item.type === "app") {
-                if (item.name === "Notepad") {
-                    openNotepad(item);
-                } else {
-                    openApp(item); 
-                }
-            } else if (item.type === "folder") {
-                openFolder(item);
-            } else {
-                alert('Cannot open undefined - open window function');
-            }
-        }
+
 
         function openFolder(folder) {
     const window = document.createElement('div');
@@ -544,8 +546,6 @@
                 iconSrc = 'https://silverflag.net/w95/briefcase.png';
             }
 
-            // debug alert for item url
-            alert(item.url);
 
             return `
                 <div class="icon" style="position: relative; display: inline-block; margin: 10px;" onclick="openApp(this)" data-name="${encodeURIComponent(item.name)}" data-url="${encodeURIComponent(item.url)}">
