@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Windows 95-like Desktop</title>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            font-family: 'MS Sans Serif', Arial, sans-serif;
+            overflow: hidden;
+        }
+        #desktop {
+            width: 100%;
+            height: calc(100% - 28px);
+            background-color: #008080;
+            position: relative;
+        }
+        .folder {
+            width: 64px;
+            height: 80px;
+            position: absolute;
+            cursor: pointer;
+            text-align: center;
+            color: white;
+            font-size: 12px;
+            text-shadow: 1px 1px 1px black;
+            user-select: none;
+        }
+        .folder img {
+            width: 32px;
+            height: 32px;
+            margin-bottom: 5px;
+        }
+        .folder.selected {
+            background-color: rgba(0, 0, 128, 0.5);
+            outline: 1px dotted #fff;
+        }
+        .taskbar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 28px;
+            background-color: #c0c0c0;
+            border-top: 1px solid #ffffff;
+            display: flex;
+            align-items: center;
+        }
+        #startButton {
+            width: 54px;
+            height: 22px;
+            background-color: #c0c0c0;
+            border: outset 2px #ffffff;
+            font-weight: bold;
+            font-size: 11px;
+            margin-left: 2px;
+            cursor: pointer;
+        }
+        #clock {
+            color: black;
+            margin-left: auto;
+            margin-right: 5px;
+            font-size: 11px;
+            border: inset 2px #808080;
+            padding: 1px 5px;
+        }
+        #startMenu {
+            position: fixed;
+            bottom: 28px;
+            left: 0;
+            width: 180px;
+            background-color: #c0c0c0;
+            border: outset 2px #ffffff;
+            display: none;
+        }
+        .startMenuItem {
+            padding: 5px 10px;
+            cursor: pointer;
+            font-size: 11px;
+        }
+        .startMenuItem:hover {
+            background-color: #000080;
+            color: white;
+        }
+        .window {
+            position: absolute;
+            background-color: #c0c0c0;
+            border: outset 2px #ffffff;
+            min-width: 200px;
+            min-height: 150px;
+        }
+        .windowHeader {
+            background-color: #000080;
+            color: white;
+            padding: 2px 5px;
+            font-weight: bold;
+            font-size: 11px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .closeButton {
+            width: 16px;
+            height: 14px;
+            background-color: #c0c0c0;
+            border: outset 1px #ffffff;
+            font-size: 9px;
+            text-align: center;
+            line-height: 14px;
+            cursor: pointer;
+        }
+        .windowContent {
+            padding: 10px;
+            font-size: 12px;
+        }
+        #sleepOverlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: black;
+            z-index: 1000;
+            display: none;
+        }
+        #contextMenu {
+            position: absolute;
+            background-color: #c0c0c0;
+            border: outset 2px #ffffff;
+            padding: 2px;
+            font-size: 11px;
+            display: none;
+            z-index: 1000;
+        }
+        .contextMenuItem {
+            padding: 2px 20px 2px 2px;
+            cursor: pointer;
+        }
+        .contextMenuItem:hover {
+            background-color: #000080;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div id="desktop"></div>
+    <div class="taskbar">
+        <button id="startButton">Start</button>
+        <div id="clock"></div>
+    </div>
+    <div id="startMenu">
+        <div class="startMenuItem" onclick="sleep()">Sleep</div>
+        <div class="startMenuItem" onclick="shutdown()">Shut Down</div>
+        <div class="startMenuItem" onclick="restart()">Restart</div>
+    </div>
+    <div id="sleepOverlay"></div>
+    <div id="contextMenu">
+        <div class="contextMenuItem" onclick="createNewFolder()">New Folder</div>
+        <div class="contextMenuItem" onclick="createNewFile()">New File</div>
+    </div>
+
+    <script>
+        // Initialize desktop
+        const desktop = document.getElementById('desktop');
+        const folders = [
+            { name: 'My Computer', x: 20, y: 20, icon: 'https://raw.githubusercontent.com/trapd00r/win95-winxp_icons/master/icons/computer-3.ico' },
+            { name: 'Network\nNeighborhood', x: 20, y: 100, icon: 'https://raw.githubusercontent.com/trapd00r/win95-winxp_icons/master/icons/network_normal_two_computers.ico' },
+            { name: 'Recycle Bin', x: 20, y: 180, icon: 'https://raw.githubusercontent.com/trapd00r/win95-winxp_icons/master/icons/recycle_bin_empty-5.ico' },
+            { name: 'My Briefcase', x: 20, y: 260, icon: 'https://raw.githubusercontent.com/trapd00r/win95-winxp_icons/master/icons/briefcase.ico' }
+        ];
+
+        // Create folders
+        folders.forEach(folder => {
+            createFolder(folder);
+        });
+
+        function createFolder(folder) {
+            const folderElement = document.createElement('div');
+            folderElement.className = 'folder';
+            folderElement.style.left = folder.x + 'px';
+            folderElement.style.top = folder.y + 'px';
+            folderElement.innerHTML = `
+                <img src="${folder.icon}" alt="${folder.name}">
+                <div>${folder.name}</div>
+            `;
+            desktop.appendChild(folderElement);
+            makeDraggable(folderElement);
+            folderElement.addEventListener('click', selectFolder);
+        }
+
+        // Make elements draggable
+        function makeDraggable(element) {
+            let pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
+            element.onmousedown = dragMouseDown;
+
+            function dragMouseDown(e) {
+                e = e || window.event;
+                e.preventDefault();
+                pos3 = e.clientX;
+                pos4 = e.clientY;
+                document.onmouseup = closeDragElement;
+                document.onmousemove = elementDrag;
+            }
+
+            function elementDrag(e) {
+                e = e || window.event;
+                e.preventDefault();
+                pos1 = pos3 - e.clientX;
+                pos2 = pos4 - e.clientY;
+                pos3 = e.clientX;
+                pos4 = e.clientY;
+                element.style.top = (element.offsetTop - pos2) + "px";
+                element.style.left = (element.offsetLeft - pos1) + "px";
+            }
+
+            function closeDragElement() {
+                document.onmouseup = null;
+                document.onmousemove = null;
+            }
+        }
+
+        // Folder selection
+        function selectFolder(e) {
+            document.querySelectorAll('.folder').forEach(f => f.classList.remove('selected'));
+            e.currentTarget.classList.add('selected');
+        }
+
+        // Deselect when clicking on desktop
+        desktop.addEventListener('click', function(e) {
+            if (e.target === desktop) {
+                document.querySelectorAll('.folder').forEach(f => f.classList.remove('selected'));
+            }
+        });
+
+        // Clock functionality
+        function updateClock() {
+            const now = new Date();
+            const timeString = now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+            document.getElementById('clock').textContent = timeString;
+        }
+        setInterval(updateClock, 1000);
+        updateClock();
+
+        // Start menu functionality
+        const startButton = document.getElementById('startButton');
+        const startMenu = document.getElementById('startMenu');
+        startButton.onclick = function() {
+            startMenu.style.display = startMenu.style.display === 'none' ? 'block' : 'none';
+        };
+
+        // Sleep functionality
+        function sleep() {
+            const sleepOverlay = document.getElementById('sleepOverlay');
+            sleepOverlay.style.display = 'block';
+            document.addEventListener('mousemove', wakeUp);
+            document.addEventListener('keydown', wakeUp);
+        }
+
+        function wakeUp() {
+            const sleepOverlay = document.getElementById('sleepOverlay');
+            sleepOverlay.style.display = 'none';
+            document.removeEventListener('mousemove', wakeUp);
+            document.removeEventListener('keydown', wakeUp);
+        }
+
+        // Shutdown functionality
+        function shutdown() {
+            window.close();
+        }
+
+        // Restart functionality
+        function restart() {
+            location.reload();
+        }
+
+        // Window creation functionality
+        function createWindow(title, content) {
+            const window = document.createElement('div');
+            window.className = 'window';
+            window.style.left = '100px';
+            window.style.top = '100px';
+            window.innerHTML = `
+                <div class="windowHeader">
+                    <span>${title}</span>
+                    <span class="closeButton" onclick="this.parentElement.parentElement.remove()">x</span>
+                </div>
+                <div class="windowContent">${content}</div>
+            `;
+            desktop.appendChild(window);
+            makeDraggable(window);
+        }
+
+        // Double-click to open folders
+        document.querySelectorAll('.folder').forEach(folder => {
+            folder.ondblclick = function() {
+                const folderName = this.textContent.trim();
+                createWindow(folderName, `This is the ${folderName} folder content.`);
+            };
+        });
+
+        // Context menu functionality
+        const contextMenu = document.getElementById('contextMenu');
+        desktop.addEventListener('contextmenu', function(e) {
+            e.preventDefault();
+            contextMenu.style.display = 'block';
+            contextMenu.style.left = e.clientX + 'px';
+            contextMenu.style.top = e.clientY + 'px';
+        });
+
+        document.addEventListener('click', function() {
+            contextMenu.style.display = 'none';
+        });
+
+        // New folder creation
+        let folderCount = 0;
+        function createNewFolder() {
+            folderCount++;
+            const newFolder = {
+                name: `New Folder (${folderCount})`,
+                x: 100 + (folderCount * 20),
+                y: 100 + (folderCount * 20),
+                icon: 'https://raw.githubusercontent.com/trapd00r/win95-winxp_icons/master/icons/directory_closed.ico'
+            };
+            createFolder(newFolder);
+        }
+
+        // New file creation (placeholder functionality)
+        function createNewFile() {
+            alert('New file creation functionality would go here.');
+        }
+    </script>
+</body>
+</html>
