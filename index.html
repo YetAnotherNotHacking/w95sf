@@ -301,16 +301,15 @@
         ];
 
         const notepadItem = {
-    name: "Notepad",
-    icon: "https://silverflag.net/w95/notepad.png", // Update this URL to the actual notepad icon
-    x: 20,
-    y: 320, // Adjust position as needed
-    type: "app",
-    content: "Welcome to Notepad!\nYou can edit this content."
-};
+            name: "Notepad",
+            icon: "https://silverflag.net/w95/notepad.png", // Update this URL to the actual notepad icon
+            x: 20,
+            y: 320, // Adjust position as needed
+            type: "app",
+            content: "Welcome to Notepad!\nYou can edit this content."
+        };
 
-desktopItems.push(notepadItem);
-
+        desktopItems.push(notepadItem);
 
 
         const desktop = document.getElementById('desktop');
@@ -412,11 +411,13 @@ desktopItems.push(notepadItem);
         }
 
         function shutdown() {
-            alert('Shutting down...');
+            // close page
+            window.close();
         }
 
         function restart() {
-            alert('Restarting...');
+            //reload
+            location.reload();
         }
 
         desktop.addEventListener('contextmenu', (e) => {
@@ -461,6 +462,11 @@ desktopItems.push(notepadItem);
         }
 
         function openApp(app) {
+            if (app.url === undefined) {
+            alert('Cannot open undefined URL');
+            return;
+            }
+            
             const window = document.createElement('div');
             window.className = 'window';
             window.style.left = '100px';
@@ -469,17 +475,29 @@ desktopItems.push(notepadItem);
             window.style.height = '400px';
 
             window.innerHTML = `
-                <div class="window-header">
-                    <div class="window-title">${app.name}</div>
-                    <div class="window-close" onclick="this.closest('.window').remove()">X</div>
-                </div>
-                <div class="window-content">
-                    <iframe src="${app.url}"></iframe>
-                </div>
+            <div class="window-header">
+                <div class="window-title">${app.name}</div>
+                <div class="window-close" onclick="this.closest('.window').remove()">X</div>
+            </div>
+            <div class="window-content">
+                <iframe src="${app.url}"></iframe>
+            </div>
             `;
 
             desktop.appendChild(window);
             makeDraggable(window);
+        }
+
+        function openWindow(item) {
+            if (item.type === "app") {
+                if (item.name === "Notepad") {
+                    openNotepad(item);
+                } else {
+                    openApp(item); 
+                }
+            } else if (item.type === "folder") {
+                openFolder(item);
+            }
         }
 
         function openFolder(folder) {
@@ -657,18 +675,7 @@ function saveFile() {
     }
 }
 
-// Add this to your existing openWindow function
-function openWindow(item) {
-    if (item.type === "app") {
-        if (item.name === "Notepad") {
-            openNotepad(item);
-        } else {
-            // Your existing code for opening other apps
-        }
-    } else if (item.type === "folder") {
-        // Your existing code for opening folders
-    }
-}
+
 
 // Update your existing makeWindowDraggable function if needed
 function makeWindowDraggable(windowId) {
