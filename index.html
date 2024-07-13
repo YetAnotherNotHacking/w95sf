@@ -446,6 +446,31 @@
             }
         }
 
+        // Update your existing makeWindowDraggable function if needed
+        function makeWindowDraggable(windowId) {
+            const window = document.getElementById(windowId);
+            const titleBar = window.querySelector('.titleBar');
+            let isDragging = false;
+            let dragOffsetX, dragOffsetY;
+
+            titleBar.addEventListener('mousedown', function(e) {
+                isDragging = true;
+                dragOffsetX = e.clientX - window.offsetLeft;
+                dragOffsetY = e.clientY - window.offsetTop;
+            });
+
+            document.addEventListener('mousemove', function(e) {
+                if (isDragging) {
+                    window.style.left = (e.clientX - dragOffsetX) + 'px';
+                    window.style.top = (e.clientY - dragOffsetY) + 'px';
+                }
+            });
+
+            document.addEventListener('mouseup', function() {
+                isDragging = false;
+            });
+        }
+
         function createNewFile() {
             const fileName = prompt('Enter file name:');
             if (fileName) {
@@ -487,7 +512,6 @@
             desktop.appendChild(window);
             makeDraggable(window);
         }
-
         function openWindow(item) {
             if (item.type === "app") {
                 if (item.name === "Notepad") {
@@ -497,6 +521,8 @@
                 }
             } else if (item.type === "folder") {
                 openFolder(item);
+            } else {
+                alert('Cannot open undefined');
             }
         }
 
@@ -677,30 +703,7 @@ function saveFile() {
 
 
 
-// Update your existing makeWindowDraggable function if needed
-function makeWindowDraggable(windowId) {
-    const window = document.getElementById(windowId);
-    const titleBar = window.querySelector('.titleBar');
-    let isDragging = false;
-    let dragOffsetX, dragOffsetY;
 
-    titleBar.addEventListener('mousedown', function(e) {
-        isDragging = true;
-        dragOffsetX = e.clientX - window.offsetLeft;
-        dragOffsetY = e.clientY - window.offsetTop;
-    });
-
-    document.addEventListener('mousemove', function(e) {
-        if (isDragging) {
-            window.style.left = (e.clientX - dragOffsetX) + 'px';
-            window.style.top = (e.clientY - dragOffsetY) + 'px';
-        }
-    });
-
-    document.addEventListener('mouseup', function() {
-        isDragging = false;
-    });
-}
 
         // Initialize desktop
         desktopItems.forEach(createIcon);
