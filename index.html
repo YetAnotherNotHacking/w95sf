@@ -488,6 +488,12 @@
 
         function openApp(app) {
 
+        // make the function alert that the open app function received the invalid "undefined" url
+        if (app.url === "undefined") {
+            alert('Cannot open undefined - open app function');
+            return;
+        }
+
         const window = document.createElement('div');
         window.className = 'window';
         window.style.left = '100px';
