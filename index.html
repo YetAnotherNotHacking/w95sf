@@ -486,6 +486,30 @@
             }
         }
 
+        function openApp(app) {
+
+        const window = document.createElement('div');
+        window.className = 'window';
+        window.style.left = '100px';
+        window.style.top = '100px';
+        window.style.width = '600px';
+        window.style.height = '400px';
+
+        window.innerHTML = `
+        <div class="window-header">
+            <div class="window-title">${app.name}</div>
+            <div class="window-close" onclick="this.closest('.window').remove()">X</div>
+        </div>
+        <div class="window-content">
+            <iframe src="${app.url}"></iframe>
+        </div>
+        `;
+
+        desktop.appendChild(window);
+        makeDraggable(window);
+        }
+
+
         function openWindow(item) {
             if (item.type === "app") {
                 if (item.name === "Notepad") {
@@ -500,32 +524,7 @@
             }
         }
 
-        function openApp(app) {
-            if (app.url === undefined) {
-            alert('Cannot open undefined URL');
-            return;
-            }
-            
-            const window = document.createElement('div');
-            window.className = 'window';
-            window.style.left = '100px';
-            window.style.top = '100px';
-            window.style.width = '600px';
-            window.style.height = '400px';
 
-            window.innerHTML = `
-            <div class="window-header">
-                <div class="window-title">${app.name}</div>
-                <div class="window-close" onclick="this.closest('.window').remove()">X</div>
-            </div>
-            <div class="window-content">
-                <iframe src="${app.url}"></iframe>
-            </div>
-            `;
-
-            desktop.appendChild(window);
-            makeDraggable(window);
-        }
 
 
         function openFolder(folder) {
