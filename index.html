@@ -544,6 +544,9 @@
                 iconSrc = 'https://silverflag.net/w95/briefcase.png';
             }
 
+            // debug alert for item url
+            alert(item.url);
+
             return `
                 <div class="icon" style="position: relative; display: inline-block; margin: 10px;" onclick="openApp(this)" data-name="${encodeURIComponent(item.name)}" data-url="${encodeURIComponent(item.url)}">
                     <img src="${item.icon || iconSrc}" alt="${item.name}" onerror="this.src='https://silverflag.net/w95/briefcase.png'">
