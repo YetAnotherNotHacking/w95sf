@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Windows 95-style Desktop</title>
+    <title>w95sf</title>
     <style>
         body, html {
             margin: 0;
@@ -216,32 +216,6 @@
         }
     </style>
 </head>
-
-
-
-
-// sup
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    
-
-
-
-
-    
 <body>
     <div id="desktop"></div>
     <div id="selectionBox"></div>
@@ -261,6 +235,7 @@
     </div>
 
     <script>
+        // Define your apps and folders here
         const desktopItems = [
             {
                 name: "My Computer",
@@ -271,67 +246,56 @@
                 contents: []
             },
             {
-                name: "Tools",
-                icon: "https://silverflag.net/w95/briefcase.png",
+                name: "IP2LOCATION",
+                url: "https://silverflag.net/tools/iputility.html",
+                x: 20,
+                y: 120,
+                type: "app"
+            },
+            {
+                name: "DNS Resolver",
+                url: "https://silverflag.net/tools/dns.html",
                 x: 20,
                 y: 220,
-                type: "folder",
-                contents: [
-                    {
-                        name: "IP2LOCATION",
-                        url: "https://silverflag.net/tools/iputility.html",
-                        x: 20,
-                        y: 120,
-                        type: "app"
-                    },
-                    {
-                        name: "DNS Resolver",
-                        url: "https://silverflag.net/tools/dns.html",
-                        x: 120,
-                        y: 120,
-                        type: "app"
-                    },
-                    {
-                        name: "Base64 Encoder/Decoder",
-                        url: "https://silverflag.net/tools/based.html",
-                        x: 220,
-                        y: 120,
-                        type: "app"
-                    },
-                    {
-                        name: "Password Strength",
-                        url: "https://silverflag.net/tools/passwordutil.html",
-                        x: 20,
-                        y: 220,
-                        type: "app"
-                    },
-                    {
-                        name: "Port Scanner",
-                        url: "https://silverflag.net/tools/portscanner.html",
-                        x: 120,
-                        y: 220,
-                        type: "app"
-                    }
-                ]
+                type: "app"
             },
-        
+            {
+                name: "Base64 Encoder/Decoder",
+                url: "https://silverflag.net/tools/based.html",
+                x: 20,
+                y: 320,
+                type: "app"
+            },
+            {
+                name: "Password Strength",
+                url: "https://silverflag.net/tools/passwordutil.html",
+                x: 20,
+                y: 420, // he he 420
+                type: "app"
+            },
+            {
+                name: "Port Scanner",
+                url: "https://silverflag.net/tools/portscanner.html",
+                x: 20,
+                y: 520,
+                type: "app"
+            },
             {
                 name: "Chat",
                 url: "https://silverflag.net/chat/index.php",
                 x: 20,
-                y: 120,
+                y: 620,
                 type: "app"
             }
- 
         ];
 
         const notepadItem = {
             name: "Notepad",
-            icon: "https://silverflag.net/w95/notepad.png", 
-            x: 20,
-            y: 320,
+            icon: "https://silverflag.net/w95/notepad.png",
+            x: 120,
+            y: 20,
             type: "app",
-            content: "Welcome to Notepad!\nYou can edit this content."
+            content: "404 about us not found - too lazy"
         };
 
         desktopItems.push(notepadItem);
@@ -361,11 +325,7 @@
             icon.addEventListener('mousedown', startDrag);
             icon.addEventListener('click', (e) => {
                 selectIcon(e);
-                if (item.type === 'app') {
-                    openApp(item);
-                } else if (item.type === 'folder') {
-                    openFolder(item);
-                }
+                openApp(item);
             });
             desktop.appendChild(icon);
         }
@@ -471,30 +431,7 @@
             }
         }
 
-        // Update your existing makeWindowDraggable function if needed
-        function makeWindowDraggable(windowId) {
-            const window = document.getElementById(windowId);
-            const titleBar = window.querySelector('.titleBar');
-            let isDragging = false;
-            let dragOffsetX, dragOffsetY;
 
-            titleBar.addEventListener('mousedown', function(e) {
-                isDragging = true;
-                dragOffsetX = e.clientX - window.offsetLeft;
-                dragOffsetY = e.clientY - window.offsetTop;
-            });
-
-            document.addEventListener('mousemove', function(e) {
-                if (isDragging) {
-                    window.style.left = (e.clientX - dragOffsetX) + 'px';
-                    window.style.top = (e.clientY - dragOffsetY) + 'px';
-                }
-            });
-
-            document.addEventListener('mouseup', function() {
-                isDragging = false;
-            });
-        }
 
         function createNewFile() {
             const fileName = prompt('Enter file name:');
@@ -512,32 +449,32 @@
         }
 
         function openApp(app) {
+            if (app.name === "Notepad") {
+                openNotepad(app);
+            } else if (app.url === undefined) {
+                alert('Cannot open undefined - open app function');
+                return;
+            } else {
+                const window = document.createElement('div');
+                window.className = 'window';
+                window.style.left = '100px';
+                window.style.top = '100px';
+                window.style.width = '600px';
+                window.style.height = '400px';
 
-        // make the function alert that the open app function received the invalid "undefined" url
-        if (app.url === "undefined") {
-            alert('Cannot open undefined - open app function');
-            return;
-        }
+                window.innerHTML = `
+                <div class="window-header">
+                    <div class="window-title">${app.name}</div>
+                    <div class="window-close" onclick="this.closest('.window').remove()">X</div>
+                </div>
+                <div class="window-content">
+                    <iframe src="${app.url}"></iframe>
+                </div>
+                `;
 
-        const window = document.createElement('div');
-        window.className = 'window';
-        window.style.left = '100px';
-        window.style.top = '100px';
-        window.style.width = '600px';
-        window.style.height = '400px';
-
-        window.innerHTML = `
-        <div class="window-header">
-            <div class="window-title">${app.name}</div>
-            <div class="window-close" onclick="this.closest('.window').remove()">X</div>
-        </div>
-        <div class="window-content">
-            <iframe src="${app.url}"></iframe>
-        </div>
-        `;
-
-        desktop.appendChild(window);
-        makeDraggable(window);
+                desktop.appendChild(window);
+                makeDraggable(window);
+            }
         }
 
 
@@ -629,6 +566,7 @@
             }
         }
 
+
         // Desktop selection effect
         let isSelecting = false;
         let selectionStartX, selectionStartY;
@@ -686,40 +624,45 @@
             document.removeEventListener('mouseup', endSelection);
         }
         function openNotepad(item) {
-    const windowHTML = `
-        <div class="window" id="notepadApp">
-            <div class="titleBar">
-                <div class="titleBarText">${item.name}</div>
-                <div class="titleBarButtons">
-                    <button class="minimizeButton">_</button>
-                    <button class="maximizeButton">□</button>
-                    <button class="closeButton" onclick="closeWindow('notepadApp')">X</button>
-                </div>
+            const window = document.createElement('div');
+            window.className = 'window';
+            window.style.left = '100px';
+            window.style.top = '100px';
+            window.style.width = '600px';
+            window.style.height = '400px';
+
+            window.innerHTML = `
+            <div class="window-header">
+                <div class="window-title">${item.name}</div>
+                <div class="window-close" onclick="this.closest('.window').remove()">X</div>
             </div>
             <div class="menuBar">
                 <div class="menuItem">
-                    File
-                    <div class="dropdownMenu">
-                        <div class="menuOption" onclick="newFile()">New</div>
-                        <div class="menuOption" onclick="saveFile()">Save</div>
-                        <div class="menuOption" onclick="closeWindow('notepadApp')">Exit</div>
-                    </div>
+                File
+                <div class="dropdownMenu">
+                    <div class="menuOption" onclick="newFile()">New</div>
+                    <div class="menuOption" onclick="saveFile()">Save</div>
+                    <div class="menuOption" onclick="closeWindow('notepadApp')">Exit</div>
+                </div>
                 </div>
                 <div class="menuItem">
-                    Edit
-                    <div class="dropdownMenu">
-                        <div class="menuOption" onclick="document.execCommand('cut')">Cut</div>
-                        <div class="menuOption" onclick="document.execCommand('copy')">Copy</div>
-                        <div class="menuOption" onclick="document.execCommand('paste')">Paste</div>
-                    </div>
+                Edit
+                <div class="dropdownMenu">
+                    <div class="menuOption" onclick="document.execCommand('cut')">Cut</div>
+                    <div class="menuOption" onclick="document.execCommand('copy')">Copy</div>
+                    <div class="menuOption" onclick="document.execCommand('paste')">Paste</div>
+                </div>
                 </div>
             </div>
             <textarea id="notepadContent" rows="20" cols="80">${item.content}</textarea>
-        </div>
-    `;
-    document.getElementById('desktop').insertAdjacentHTML('beforeend', windowHTML);
-    makeWindowDraggable('notepadApp');
-}
+            `;
+
+            desktop.appendChild(window);
+            makeDraggable(window);
+        }
+
+        
+
 
 function newFile() {
     document.getElementById('notepadContent').value = '';
@@ -730,7 +673,6 @@ function saveFile() {
     const notepadItem = desktopItems.find(item => item.name === "Notepad");
     if (notepadItem) {
         notepadItem.content = content;
-        alert('File saved!');
     }
 }
 
